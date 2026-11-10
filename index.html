@@ -123,7 +123,92 @@ document.getElementById("exFilters").innerHTML=["Semua","Chest","Back","Shoulder
 window.setGroup=x=>{selectedGroup=x;document.querySelectorAll("#exFilters button").forEach(b=>b.classList.toggle("active",b.textContent===x));renderExercises()};
 document.getElementById("exSearch").addEventListener("input",renderExercises);
 window.showExercise=async i=>{let e=exercises[i],fav=favorites.includes(i),detail=document.getElementById("exDetail");detail.innerHTML=`<div class="detail"><div class="row"><span class="tag">${e.group} • ${e.type}</span><button onclick="toggleFav(${i})">${fav?"★ Hapus favorit":"☆ Simpan favorit"}</button></div><h2>${e.name}</h2><div class="video-wrap" id="videoBox"><div class="muted">Menyiapkan video demonstrasi…</div></div><h3>Otot yang bekerja</h3><p>${e.target}</p><h3>Cara melakukan</h3><p>${e.how}</p><h3>Tips teknik</h3><p>${e.tips}</p><h3>Kesalahan umum</h3><p>${e.mistakes}</p><h3>Contoh dosis latihan</h3><p>${e.dose}</p><p class="muted" style="margin-top:15px">Mulai dengan beban ringan yang bisa dikontrol. Set dan repetisi merupakan contoh awal, bukan aturan wajib.</p></div>`;detail.scrollIntoView({behavior:"smooth",block:"start"});loadExerciseVideo(e,i)};
-async function loadExerciseVideo(ex,i){const box=document.getElementById("videoBox");if(!box)return;try{const url='https://exercise-database.zenithfits.com/api/v1/search?q='+encodeURIComponent(ex.name);const res=await fetch(url,{headers:{'Accept':'application/json'}});if(!res.ok)throw new Error('API unavailable');const payload=await res.json();const rows=payload.data||[];const norm=s=>String(s||'').toLowerCase().replace(/[^a-z0-9]/g,'');const wanted=norm(ex.name);let item=rows.find(x=>norm(x.name)===wanted)||rows.find(x=>{const n=norm(x.name);return n.includes(wanted)||wanted.includes(n)});const video=item&&item.videos&&(item.videos.male||item.videos.female);if(video){box.innerHTML=`<video controls playsinline preload="metadata" poster="${item.thumbnails?.male||item.thumbnails?.female||''}"><source src="${video}" type="video/mp4">Browser tidak mendukung pemutar video.</video><p class="video-note">Video demonstrasi gerakan • Sumber: database latihan terbuka</p>`}else{throw new Error('No matching clip')}}catch(err){const q=encodeURIComponent(ex.name+' proper exercise form demonstration');box.innerHTML=`<p><b>Video langsung belum tersedia untuk gerakan ini.</b></p><p class="video-note">Buka hasil demonstrasi gerakan di YouTube sebagai alternatif.</p><a class="btn" style="display:inline-block;text-decoration:none" href="https://www.youtube.com/results?search_query=${q}" target="_blank" rel="noopener">▶ Cari video ${ex.name}</a>`}}
+
+async function loadExerciseVideo(ex, i) {
+  const box = document.getElementById("videoBox");
+  if (!box) return;
+
+  const searchUrl =
+    "https://www.youtube.com/results?search_query=" +
+    encodeURIComponent(ex.name + " proper form tutorial");
+
+  box.innerHTML = `
+    <p class="muted">Memuat video tutorial...</p>
+  `;
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
+
+  try {
+    const url =
+      "https://exercise-database.zenithfits.com/api/v1/search?q=" +
+      encodeURIComponent(ex.name);
+
+    const res = await fetch(url, {
+      headers: { Accept: "application/json" },
+      signal: controller.signal
+    });
+
+    if (!res.ok) throw new Error("API tidak merespons");
+
+    const payload = await res.json();
+    const rows = payload.data || [];
+
+    const norm = s =>
+      String(s || "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, "");
+
+    const wanted = norm(ex.name);
+
+    const item =
+      rows.find(x => norm(x.name) === wanted) ||
+      rows.find(x => {
+        const n = norm(x.name);
+        return n && (n.includes(wanted) || wanted.includes(n));
+      });
+
+    const video =
+      item && item.videos &&
+      (item.videos.male || item.videos.female);
+
+    if (!video) throw new Error("Video tidak ditemukan");
+
+    box.innerHTML = `
+      <video controls playsinline preload="metadata"
+        style="width:100%;max-height:420px;background:#000;border-radius:8px">
+        <source src="${esc(video)}" type="video/mp4">
+        Browser tidak mendukung video ini.
+      </video>
+      <p class="video-note">
+        Video demonstrasi dari database latihan.
+      </p>
+      <a class="btn" href="${searchUrl}"
+        target="_blank" rel="noopener"
+        style="display:inline-block;text-decoration:none">
+        Cari tutorial alternatif
+      </a>
+    `;
+
+  } catch (err) {
+    box.innerHTML = `
+      <div style="padding:12px">
+        <p><b>Video langsung belum tersedia.</b></p>
+        <p class="video-note">
+          API video tidak merespons atau video gerakan ini tidak ditemukan.
+          Gunakan tombol di bawah untuk melihat demonstrasi.
+        </p>
+        <a class="btn" href="${searchUrl}"
+          target="_blank" rel="noopener"
+          style="display:inline-block;text-decoration:none;margin-top:8px">
+          ▶ Tonton tutorial ${esc(ex.name)} di YouTube
+        </a>
+      </div>
+    `;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
 
 window.toggleFav=i=>{favorites=favorites.includes(i)?favorites.filter(x=>x!==i):[...favorites,i];localStorage.setItem("aaGymFavorites",JSON.stringify(favorites));showExercise(i);renderSaved()};
 function renderSaved(){document.getElementById("savedList").innerHTML=favorites.map(i=>`<button class="card" onclick="go('exercise');showExercise(${i})"><span class="tag">${exercises[i].group}</span><h3>${exercises[i].name}</h3><span class="gold">Lihat tutorial →</span></button>`).join("")||"<p class='muted'>Belum ada gerakan favorit.</p>"}
