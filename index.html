@@ -296,6 +296,13 @@ function go(id){
     showAuthMessage("Silakan login terlebih dahulu untuk membuka materi AA NGEGYM.");
   }
 
+  document.querySelectorAll(".page").forEach(page => {
+    page.classList.remove("active");
+  });
+
+  document.getElementById("page-" + id)?.classList.add("active");
+}
+
   document.querySelectorAll("section.page").forEach(x=>x.classList.remove("active"));
   document.getElementById(id).classList.add("active");
 
