@@ -288,7 +288,7 @@ const glossary=[
 ["1RM","One Rep Max","Beban maksimal yang dapat diangkat untuk satu repetisi dengan teknik yang benar."],["Rep","Repetition","Satu kali pengulangan gerakan latihan."],["Set","Set","Sekumpulan repetisi dalam satu rangkaian kerja."],["RIR","Reps In Reserve","Perkiraan repetisi yang masih tersisa sebelum failure."],["RPE","Rate of Perceived Exertion","Skala subjektif untuk mengukur tingkat kesulitan set."],["Failure","Muscular Failure","Kondisi ketika tidak mampu menyelesaikan repetisi berikutnya dengan teknik yang benar."],["PR","Personal Record","Pencapaian performa terbaik pribadi."],["ROM","Range of Motion","Rentang gerak sendi atau gerakan latihan."],["TUT","Time Under Tension","Durasi otot berada di bawah tegangan selama latihan."],["DOMS","Delayed Onset Muscle Soreness","Rasa nyeri otot yang muncul setelah latihan, biasanya tertunda."],["Compound","Compound Exercise","Latihan yang melibatkan beberapa sendi dan kelompok otot."],["Isolation","Isolation Exercise","Latihan yang lebih menargetkan satu otot atau kelompok otot tertentu."],["Superset","Superset","Dua latihan dilakukan berurutan dengan sedikit atau tanpa jeda."],["Drop Set","Drop Set","Melanjutkan latihan dengan mengurangi beban setelah mendekati atau mencapai failure."],["Deload","Deload Week","Periode pengurangan beban atau volume untuk membantu pemulihan."],["Hypertrophy","Muscle Hypertrophy","Pembesaran ukuran otot sebagai respons adaptasi latihan."],["TDEE","Total Daily Energy Expenditure","Estimasi total energi yang digunakan tubuh dalam satu hari."],["BMR","Basal Metabolic Rate","Estimasi energi yang dibutuhkan tubuh saat istirahat."],["Spotter","Spotter","Orang yang membantu mengawasi dan mengamankan latihan tertentu."],["Bulking","Bulking","Fase peningkatan asupan energi untuk mendukung pertumbuhan massa tubuh dan otot."],["Cutting","Cutting","Fase defisit energi untuk menurunkan berat badan, dengan upaya mempertahankan massa otot."],["Eccentric","Eccentric Phase","Fase ketika otot menghasilkan gaya sambil memanjang."],["Concentric","Concentric Phase","Fase ketika otot menghasilkan gaya sambil memendek."]];
 let selectedGroup="Semua",favorites=JSON.parse(localStorage.getItem("aaGymFavorites")||"[]");
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
-function go(id){
+window.go = function(id){
   const publicPages = ["home", "auth"];
 
   if (!publicPages.includes(id) && !currentUser) {
@@ -301,8 +301,7 @@ function go(id){
   });
 
   document.getElementById("page-" + id)?.classList.add("active");
-}
-
+};
   document.querySelectorAll("section.page").forEach(x=>x.classList.remove("active"));
   document.getElementById(id).classList.add("active");
 
