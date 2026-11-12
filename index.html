@@ -57,7 +57,30 @@ footer{text-align:center;border-top:1px solid var(--line);padding:25px;color:var
 }</style>
 </head>
 <body>
-<header><div class="brand"><span class="logo">AA</span><span>AA NGEGYM<small>GYM ACADEMY</small></span></div><span class="muted" style="font-size:11px">LEARN • LIFT • GROW</span></header>
+<header>
+  <div class="brand">
+    <span class="logo">AA</span>
+    <span>AA NGEGYM<small>GYM ACADEMY</small></span>
+  </div>
+
+  <div class="header-tools">
+    <div class="site-search">
+      <input
+        id="siteSearch"
+        type="search"
+        placeholder="Cari seluruh materi..."
+        autocomplete="off"
+      >
+      <div id="siteSearchResults" class="search-results" hidden></div>
+    </div>
+
+    <button
+      id="accountButton"
+      class="account-button"
+      onclick="go('auth')"
+    >Akun / Login</button>
+  </div>
+</header>
 <main>
 <div class="hero"><div class="eyebrow">YOUR FITNESS LEARNING HUB</div><h1>Train Smart.<br><span class="gold">Build Strong.</span></h1><p class="muted">Panduan belajar fitness dari pemula sampai mahir. Pahami gerakan, otot, program latihan, nutrisi, dan prinsip latihan.</p><button class="primary" onclick="go('exercise')">Mulai belajar →</button></div>
 <nav id="nav">
@@ -967,26 +990,28 @@ function showAuthMessage(message, isError = false) {
 }
 
 function updateAuthDisplay() {
-
-function updateAuthDisplay() {
   const box = document.getElementById("authStatus");
   const accountButton = document.getElementById("accountButton");
 
-  if (currentUser) {
-    accountButton.textContent = "Akun Saya";
-    accountButton.title = currentUser.email || "Member AA NGEGYM";
+  if (accountButton) {
+    accountButton.textContent = currentUser
+      ? "Akun Saya"
+      : "Akun / Login";
 
-    if (box) {
-      box.style.display = "block";
-      box.style.background = "#203447";
-      box.innerHTML = `
-        <b>Login berhasil</b>
-        <p>${esc(currentUser.email || "Member AA NGEGYM")}</p>
-        <button onclick="logoutAccount()">Keluar dari akun</button>
-      `;
-    }
-  } else {
-    accountButton.textContent = "Akun / Login";
-    accountButton.title = "Masuk ke AA NGEGYM";
+    accountButton.title = currentUser
+      ? currentUser.email
+      : "Masuk ke AA NGEGYM";
+  }
+
+  if (!box) return;
+
+  if (currentUser) {
+    box.style.display = "block";
+    box.style.background = "#203447";
+    box.innerHTML = `
+      <b>Login berhasil</b>
+      <p>${esc(currentUser.email || "Member AA NGEGYM")}</p>
+      <button onclick="logoutAccount()">Keluar dari akun</button>
+    `;
   }
 }
