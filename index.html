@@ -38,14 +38,125 @@ footer{text-align:center;border-top:1px solid var(--line);padding:25px;color:var
 .progress-stat small{display:block;color:var(--muted)}
 @media(max-width:600px){header{padding:13px 15px}.hero{padding:21px}.card{padding:13px}main{padding:16px 13px 40px}}
 </style>
+
+/* HEADER SEARCH DAN ACCOUNT */
+.header-tools {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.site-search {
+  position: relative;
+  width: 260px;
+}
+
+.site-search input {
+  width: 100%;
+  margin: 0;
+  padding: 10px 13px;
+  font-size: 12px;
+  border-radius: 10px;
+}
+
+.account-button {
+  white-space: nowrap;
+  background: var(--gold);
+  color: #17130b;
+  border-color: var(--gold);
+}
+
+.search-results {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: min(360px, 85vw);
+  max-height: 420px;
+  overflow-y: auto;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 12px 30px #0008;
+  z-index: 20;
+  padding: 6px;
+}
+
+.search-results[hidden] {
+  display: none;
+}
+
+.search-results button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  padding: 10px;
+  margin: 2px 0;
+}
+
+.search-results button:hover {
+  background: var(--panel2);
+}
+
+.search-results small {
+  display: block;
+  color: var(--muted);
+  font-weight: 400;
+  margin-top: 3px;
+}
+
+.search-empty {
+  padding: 12px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+@media(max-width:600px) {
+  header {
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .header-tools {
+    flex: 1;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+
+  .site-search {
+    width: min(190px, 100%);
+  }
+
+  .site-search input {
+    font-size: 11px;
+    padding: 9px;
+  }
+
+  .account-button {
+    padding: 9px;
+    font-size: 11px;
+  }
+}
+
 </head>
 <body>
 <header><div class="brand"><span class="logo">AA</span><span>AA NGEGYM<small>GYM ACADEMY</small></span></div><span class="muted" style="font-size:11px">LEARN • LIFT • GROW</span></header>
 <main>
 <div class="hero"><div class="eyebrow">YOUR FITNESS LEARNING HUB</div><h1>Train Smart.<br><span class="gold">Build Strong.</span></h1><p class="muted">Panduan belajar fitness dari pemula sampai mahir. Pahami gerakan, otot, program latihan, nutrisi, dan prinsip latihan.</p><button class="primary" onclick="go('exercise')">Mulai belajar →</button></div>
 <nav id="nav">
-<button class="active" data-page="home"><button data-page="auth">Akun / Login</button>Beranda</button><button data-page="exercise">Exercise Library</button><button data-page="anatomy">Anatomi Otot</button><button data-page="program">Program Gym</button><button data-page="nutrition">Nutrisi</button><button data-page="knowledge">Gym Knowledge</button><button data-page="glossary">Kamus Gym</button><button data-page="saved">Favorit</button><button data-page="progress">Progress Tracker</button>
+  <button class="active" data-page="home">Beranda</button>
+  <button data-page="exercise">Exercise Library</button>
+  <button data-page="anatomy">Anatomi Otot</button>
+  <button data-page="program">Program Gym</button>
+  <button data-page="nutrition">Nutrisi</button>
+  <button data-page="knowledge">Gym Knowledge</button>
+  <button data-page="glossary">Kamus Gym</button>
+  <button data-page="saved">Favorit</button>
+  <button data-page="progress">Progress Tracker</button>
 </nav>
+
 <section id="auth" class="page">
   <div class="card" style="max-width:480px;margin:20px auto">
     <div class="eyebrow">AA NGEGYM MEMBER</div>
@@ -723,6 +834,200 @@ function renderProgressHistory(data) {
 resetProgressForm();
 renderProgress();
 renderExercises();renderSaved();renderGloss();
+
+// ===================================
+// AA NGEGYM - GLOBAL SEARCH
+// ===================================
+
+const siteSearchIndex = [];
+
+exercises.forEach((item, index) => {
+  siteSearchIndex.push({
+    title: item.name,
+    category: "Exercise Library",
+    description: item.group + " • " + item.target + " • " + item.how,
+    type: "exercise",
+    index
+  });
+});
+
+muscles.forEach((item, index) => {
+  siteSearchIndex.push({
+    title: item[0],
+    category: "Anatomi Otot",
+    description: item.slice(1).join(" "),
+    type: "anatomy",
+    index
+  });
+});
+
+programs.forEach((item, index) => {
+  siteSearchIndex.push({
+    title: item[0],
+    category: "Program Gym",
+    description: item.slice(1).join(" "),
+    type: "program",
+    index
+  });
+});
+
+topics.forEach((item, index) => {
+  siteSearchIndex.push({
+    title: item[0],
+    category: "Gym Knowledge",
+    description: item.slice(1).join(" "),
+    type: "knowledge",
+    index
+  });
+});
+
+glossary.forEach((item, index) => {
+  siteSearchIndex.push({
+    title: item[0] + " — " + item[1],
+    category: "Kamus Gym",
+    description: item[2],
+    type: "glossary",
+    index
+  });
+});
+
+// Tambahkan halaman utama lainnya
+[
+  ["Beranda", "home", "Halaman utama AA NGEGYM"],
+  ["Kalkulator Nutrisi", "nutrition", "BMR TDEE kalori protein karbohidrat lemak"],
+  ["Progress Tracker", "progress", "Catatan berat badan dan pengukuran tubuh"],
+  ["Gerakan Favorit", "saved", "Daftar gerakan latihan yang disimpan"]
+].forEach(item => {
+  siteSearchIndex.push({
+    title: item[0],
+    category: "Halaman Website",
+    description: item[2],
+    type: "page",
+    page: item[1]
+  });
+});
+
+function renderSiteSearch() {
+  const input = document.getElementById("siteSearch");
+  const results = document.getElementById("siteSearchResults");
+
+  const query = input.value.trim().toLowerCase();
+
+  if (!query) {
+    results.hidden = true;
+    results.innerHTML = "";
+    return;
+  }
+
+  const matches = siteSearchIndex
+    .map(item => {
+      const content = (
+        item.title + " " +
+        item.category + " " +
+        item.description
+      ).toLowerCase();
+
+      return {
+        item,
+        score: content.includes(query)
+          ? (item.title.toLowerCase().includes(query) ? 2 : 1)
+          : 0
+      };
+    })
+    .filter(result => result.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 10);
+
+  results.hidden = false;
+
+  if (!matches.length) {
+    results.innerHTML =
+      '<div class="search-empty">Materi tidak ditemukan.</div>';
+    return;
+  }
+
+  results.innerHTML = matches.map((result, index) => `
+    <button type="button" onclick="openSiteSearchResult(${siteSearchIndex.indexOf(result.item)})">
+      <b>${esc(result.item.title)}</b>
+      <small>${esc(result.item.category)}</small>
+    </button>
+  `).join("");
+}
+
+function openSiteSearchResult(index) {
+  const item = siteSearchIndex[index];
+  if (!item) return;
+
+  document.getElementById("siteSearchResults").hidden = true;
+
+  if (item.type === "exercise") {
+    go("exercise");
+    selectedGroup = "Semua";
+    document.getElementById("exSearch").value = "";
+    renderExercises();
+    showExercise(item.index);
+  }
+
+  else if (item.type === "anatomy") {
+    go("anatomy");
+    showMuscle(item.index);
+  }
+
+  else if (item.type === "program") {
+    go("program");
+    showProgram(item.index);
+    document.getElementById("programDetail").scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  }
+
+  else if (item.type === "knowledge") {
+    go("knowledge");
+    const cards = document.querySelectorAll("#knowledgeList details");
+    if (cards[item.index]) {
+      cards[item.index].open = true;
+      cards[item.index].scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+      });
+    }
+  }
+
+  else if (item.type === "glossary") {
+    go("glossary");
+    document.getElementById("glossSearch").value = glossary[item.index][0];
+    renderGloss();
+  }
+
+  else if (item.type === "page") {
+    go(item.page);
+  }
+}
+
+document.getElementById("siteSearch")
+  .addEventListener("input", renderSiteSearch);
+
+document.getElementById("siteSearch")
+  .addEventListener("keydown", event => {
+    if (event.key === "Escape") {
+      document.getElementById("siteSearchResults").hidden = true;
+    }
+
+    if (event.key === "Enter") {
+      const first = document.querySelector(
+        "#siteSearchResults button"
+      );
+
+      if (first) first.click();
+    }
+  });
+
+document.addEventListener("click", event => {
+  if (!event.target.closest(".site-search")) {
+    document.getElementById("siteSearchResults").hidden = true;
+  }
+});
 // ===================================
 // AA NGEGYM - SUPABASE AUTHENTICATION
 // ===================================
@@ -747,114 +1052,26 @@ function showAuthMessage(message, isError = false) {
 }
 
 function updateAuthDisplay() {
+
+function updateAuthDisplay() {
   const box = document.getElementById("authStatus");
-  if (!box) return;
+  const accountButton = document.getElementById("accountButton");
 
   if (currentUser) {
-    box.style.display = "block";
-    box.style.background = "#203447";
-    box.innerHTML = `
-      <b>Login berhasil</b>
-      <p>${esc(currentUser.email || "Member AA NGEGYM")}</p>
-      <button onclick="logoutAccount()">Keluar dari akun</button>
-    `;
-  }
-}
+    accountButton.textContent = "Akun Saya";
+    accountButton.title = currentUser.email || "Member AA NGEGYM";
 
-async function registerEmail() {
-  const email = document.getElementById("authEmail").value.trim();
-  const password = document.getElementById("authPassword").value;
-
-  if (!email || password.length < 6) {
-    showAuthMessage("Masukkan email yang benar dan password minimal 6 karakter.", true);
-    return;
-  }
-
-  const { data, error } = await supabaseClient.auth.signUp({
-    email,
-    password,
-    options: {
-      emailRedirectTo: window.location.origin + window.location.pathname
+    if (box) {
+      box.style.display = "block";
+      box.style.background = "#203447";
+      box.innerHTML = `
+        <b>Login berhasil</b>
+        <p>${esc(currentUser.email || "Member AA NGEGYM")}</p>
+        <button onclick="logoutAccount()">Keluar dari akun</button>
+      `;
     }
-  });
-
-  if (error) {
-    showAuthMessage(error.message, true);
-    return;
-  }
-
-  if (data.session) {
-    showAuthMessage("Akun berhasil dibuat dan kamu sudah login.");
   } else {
-    showAuthMessage("Akun berhasil dibuat. Silakan cek email untuk verifikasi sebelum login.");
+    accountButton.textContent = "Akun / Login";
+    accountButton.title = "Masuk ke AA NGEGYM";
   }
 }
-
-async function loginEmail() {
-  const email = document.getElementById("authEmail").value.trim();
-  const password = document.getElementById("authPassword").value;
-
-  if (!email || !password) {
-    showAuthMessage("Email dan password wajib diisi.", true);
-    return;
-  }
-
-  const { error } = await supabaseClient.auth.signInWithPassword({
-    email,
-    password
-  });
-
-  if (error) {
-    showAuthMessage(error.message, true);
-    return;
-  }
-
-  showAuthMessage("Login berhasil. Selamat datang!");
-}
-
-async function loginGoogle() {
-  const { error } = await supabaseClient.auth.signInWithOAuth({
-    provider: "google",
-    options: {
-      redirectTo: window.location.origin + window.location.pathname
-    }
-  });
-
-  if (error) {
-    showAuthMessage(error.message, true);
-  }
-}
-
-async function logoutAccount() {
-  const { error } = await supabaseClient.auth.signOut();
-
-  if (error) {
-    showAuthMessage(error.message, true);
-    return;
-  }
-
-  go("home");
-}
-
-supabaseClient.auth.onAuthStateChange((event, session) => {
-  currentUser = session?.user || null;
-
-  if (currentUser) {
-    updateAuthDisplay();
-  } else if (event === "SIGNED_OUT") {
-    showAuthMessage("Kamu sudah keluar dari akun.");
-  }
-});
-
-// Periksa sesi login yang tersimpan
-supabaseClient.auth.getSession().then(({ data, error }) => {
-  if (error) {
-    console.error("Gagal memeriksa sesi:", error.message);
-    return;
-  }
-
-  currentUser = data.session?.user || null;
-  updateAuthDisplay();
-});
-</script>
-</body></html>
