@@ -44,8 +44,34 @@ footer{text-align:center;border-top:1px solid var(--line);padding:25px;color:var
 <main>
 <div class="hero"><div class="eyebrow">YOUR FITNESS LEARNING HUB</div><h1>Train Smart.<br><span class="gold">Build Strong.</span></h1><p class="muted">Panduan belajar fitness dari pemula sampai mahir. Pahami gerakan, otot, program latihan, nutrisi, dan prinsip latihan.</p><button class="primary" onclick="go('exercise')">Mulai belajar →</button></div>
 <nav id="nav">
-<button class="active" data-page="home">Beranda</button><button data-page="exercise">Exercise Library</button><button data-page="anatomy">Anatomi Otot</button><button data-page="program">Program Gym</button><button data-page="nutrition">Nutrisi</button><button data-page="knowledge">Gym Knowledge</button><button data-page="glossary">Kamus Gym</button><button data-page="saved">Favorit</button><button data-page="progress">Progress Tracker</button>
+<button class="active" data-page="home"><button data-page="auth">Akun / Login</button>Beranda</button><button data-page="exercise">Exercise Library</button><button data-page="anatomy">Anatomi Otot</button><button data-page="program">Program Gym</button><button data-page="nutrition">Nutrisi</button><button data-page="knowledge">Gym Knowledge</button><button data-page="glossary">Kamus Gym</button><button data-page="saved">Favorit</button><button data-page="progress">Progress Tracker</button>
 </nav>
+<section id="auth" class="page">
+  <div class="card" style="max-width:480px;margin:20px auto">
+    <div class="eyebrow">AA NGEGYM MEMBER</div>
+    <h2>Masuk ke Gym Academy</h2>
+    <p class="muted">Login untuk membuka seluruh materi pembelajaran dan fitur member.</p>
+
+    <div id="authStatus" class="result" style="display:none"></div>
+
+    <label>Email</label>
+    <input id="authEmail" type="email" placeholder="email@contoh.com" autocomplete="email">
+
+    <label>Password</label>
+    <input id="authPassword" type="password" placeholder="Minimal 6 karakter" autocomplete="current-password">
+
+    <button class="primary" style="width:100%;margin:5px 0" onclick="loginEmail()">Masuk</button>
+    <button style="width:100%;margin:5px 0" onclick="registerEmail()">Buat Akun Baru</button>
+
+    <div style="text-align:center;margin:14px 0;color:var(--muted)">— atau —</div>
+
+    <button style="width:100%" onclick="loginGoogle()">Lanjutkan dengan Google</button>
+
+    <p class="muted" style="font-size:11px;margin-top:15px">
+      Dengan membuat akun, kamu dapat mengakses materi AA NGEGYM sebagai member.
+    </p>
+  </div>
+</section>
 <section id="home" class="page active">
 <h2>Jelajahi materi</h2><div class="grid">
 <button class="card tile" onclick="go('exercise')"><div class="emoji">🏋️</div><h3>Exercise Library</h3><p class="muted">Tutorial gerakan dan teknik yang benar.</p></button>
@@ -155,6 +181,7 @@ footer{text-align:center;border-top:1px solid var(--line);padding:25px;color:var
 <footer><b class="gold">AA NGEGYM — GYM ACADEMY</b><br>Belajar teknik. Pahami proses. Latihan dengan cerdas.</footer>
 </main>
 <dialog id="modal"><button class="close" onclick="modal.close()">Tutup ✕</button><div id="modalContent"></div></dialog>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const exercises=[
 {name:"Barbell Bench Press",group:"Chest",type:"Compound",target:"Pectoralis major, triceps, anterior deltoid",how:"Berbaring stabil di bangku. Pegang bar sedikit lebih lebar dari bahu. Turunkan secara terkontrol ke area dada tengah, lalu dorong kembali ke atas.",tips:"Kaki menapak, tulang belikat stabil, pergelangan tangan relatif di atas siku. Gunakan spotter atau safety arms saat mengangkat berat.",mistakes:"Memantulkan bar di dada, siku melebar tanpa kontrol, pantat terangkat, atau bahu kehilangan posisi.",dose:"3–4 set × 6–10 repetisi"},
@@ -214,8 +241,23 @@ const glossary=[
 ["1RM","One Rep Max","Beban maksimal yang dapat diangkat untuk satu repetisi dengan teknik yang benar."],["Rep","Repetition","Satu kali pengulangan gerakan latihan."],["Set","Set","Sekumpulan repetisi dalam satu rangkaian kerja."],["RIR","Reps In Reserve","Perkiraan repetisi yang masih tersisa sebelum failure."],["RPE","Rate of Perceived Exertion","Skala subjektif untuk mengukur tingkat kesulitan set."],["Failure","Muscular Failure","Kondisi ketika tidak mampu menyelesaikan repetisi berikutnya dengan teknik yang benar."],["PR","Personal Record","Pencapaian performa terbaik pribadi."],["ROM","Range of Motion","Rentang gerak sendi atau gerakan latihan."],["TUT","Time Under Tension","Durasi otot berada di bawah tegangan selama latihan."],["DOMS","Delayed Onset Muscle Soreness","Rasa nyeri otot yang muncul setelah latihan, biasanya tertunda."],["Compound","Compound Exercise","Latihan yang melibatkan beberapa sendi dan kelompok otot."],["Isolation","Isolation Exercise","Latihan yang lebih menargetkan satu otot atau kelompok otot tertentu."],["Superset","Superset","Dua latihan dilakukan berurutan dengan sedikit atau tanpa jeda."],["Drop Set","Drop Set","Melanjutkan latihan dengan mengurangi beban setelah mendekati atau mencapai failure."],["Deload","Deload Week","Periode pengurangan beban atau volume untuk membantu pemulihan."],["Hypertrophy","Muscle Hypertrophy","Pembesaran ukuran otot sebagai respons adaptasi latihan."],["TDEE","Total Daily Energy Expenditure","Estimasi total energi yang digunakan tubuh dalam satu hari."],["BMR","Basal Metabolic Rate","Estimasi energi yang dibutuhkan tubuh saat istirahat."],["Spotter","Spotter","Orang yang membantu mengawasi dan mengamankan latihan tertentu."],["Bulking","Bulking","Fase peningkatan asupan energi untuk mendukung pertumbuhan massa tubuh dan otot."],["Cutting","Cutting","Fase defisit energi untuk menurunkan berat badan, dengan upaya mempertahankan massa otot."],["Eccentric","Eccentric Phase","Fase ketika otot menghasilkan gaya sambil memanjang."],["Concentric","Concentric Phase","Fase ketika otot menghasilkan gaya sambil memendek."]];
 let selectedGroup="Semua",favorites=JSON.parse(localStorage.getItem("aaGymFavorites")||"[]");
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
-function go(id){document.querySelectorAll("section.page").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll("#nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===id));window.scrollTo({top:0,behavior:"smooth"})}
-document.querySelectorAll("#nav button").forEach(b=>b.onclick=()=>go(b.dataset.page));
+function go(id){
+  const publicPages = ["home", "auth"];
+
+  if (!publicPages.includes(id) && !currentUser) {
+    id = "auth";
+    showAuthMessage("Silakan login terlebih dahulu untuk membuka materi AA NGEGYM.");
+  }
+
+  document.querySelectorAll("section.page").forEach(x=>x.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+
+  document.querySelectorAll("#nav button").forEach(x=>
+    x.classList.toggle("active",x.dataset.page===id)
+  );
+
+  window.scrollTo({top:0,behavior:"smooth"});
+}document.querySelectorAll("#nav button").forEach(b=>b.onclick=()=>go(b.dataset.page));
 window.go=go;
 function renderExercises(){let q=document.getElementById("exSearch").value.toLowerCase();let list=exercises.map((e,i)=>({...e,i})).filter(e=>(selectedGroup==="Semua"||e.group===selectedGroup)&&(e.name+" "+e.target).toLowerCase().includes(q));document.getElementById("count").textContent=list.length+" gerakan";document.getElementById("exList").innerHTML=list.map(e=>`<button class="card exercise" onclick="showExercise(${e.i})"><span class="tag">${e.group} • ${e.type}</span><h3>${e.name}</h3><p>${e.target}</p><span class="gold" style="font-size:11px">Buka tutorial →</span></button>`).join("")||"<p class='muted'>Gerakan tidak ditemukan.</p>"}
 document.getElementById("exFilters").innerHTML=["Semua","Chest","Back","Shoulders","Arms","Legs","Core"].map(x=>`<button onclick="setGroup('${x}')" class="${x==="Semua"?"active":""}">${x}</button>`).join("");
@@ -681,5 +723,138 @@ function renderProgressHistory(data) {
 resetProgressForm();
 renderProgress();
 renderExercises();renderSaved();renderGloss();
+// ===================================
+// AA NGEGYM - SUPABASE AUTHENTICATION
+// ===================================
+
+const SUPABASE_URL = "https://hypjkvtycyyeyzondaoyw.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_jnj6wFLsVDUfQSG5vhpphg_CMHEANzP";
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+
+let currentUser = null;
+
+function showAuthMessage(message, isError = false) {
+  const box = document.getElementById("authStatus");
+  if (!box) return;
+
+  box.style.display = "block";
+  box.style.background = isError ? "#48252b" : "#203447";
+  box.textContent = message;
+}
+
+function updateAuthDisplay() {
+  const box = document.getElementById("authStatus");
+  if (!box) return;
+
+  if (currentUser) {
+    box.style.display = "block";
+    box.style.background = "#203447";
+    box.innerHTML = `
+      <b>Login berhasil</b>
+      <p>${esc(currentUser.email || "Member AA NGEGYM")}</p>
+      <button onclick="logoutAccount()">Keluar dari akun</button>
+    `;
+  }
+}
+
+async function registerEmail() {
+  const email = document.getElementById("authEmail").value.trim();
+  const password = document.getElementById("authPassword").value;
+
+  if (!email || password.length < 6) {
+    showAuthMessage("Masukkan email yang benar dan password minimal 6 karakter.", true);
+    return;
+  }
+
+  const { data, error } = await supabaseClient.auth.signUp({
+    email,
+    password,
+    options: {
+      emailRedirectTo: window.location.origin + window.location.pathname
+    }
+  });
+
+  if (error) {
+    showAuthMessage(error.message, true);
+    return;
+  }
+
+  if (data.session) {
+    showAuthMessage("Akun berhasil dibuat dan kamu sudah login.");
+  } else {
+    showAuthMessage("Akun berhasil dibuat. Silakan cek email untuk verifikasi sebelum login.");
+  }
+}
+
+async function loginEmail() {
+  const email = document.getElementById("authEmail").value.trim();
+  const password = document.getElementById("authPassword").value;
+
+  if (!email || !password) {
+    showAuthMessage("Email dan password wajib diisi.", true);
+    return;
+  }
+
+  const { error } = await supabaseClient.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if (error) {
+    showAuthMessage(error.message, true);
+    return;
+  }
+
+  showAuthMessage("Login berhasil. Selamat datang!");
+}
+
+async function loginGoogle() {
+  const { error } = await supabaseClient.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: window.location.origin + window.location.pathname
+    }
+  });
+
+  if (error) {
+    showAuthMessage(error.message, true);
+  }
+}
+
+async function logoutAccount() {
+  const { error } = await supabaseClient.auth.signOut();
+
+  if (error) {
+    showAuthMessage(error.message, true);
+    return;
+  }
+
+  go("home");
+}
+
+supabaseClient.auth.onAuthStateChange((event, session) => {
+  currentUser = session?.user || null;
+
+  if (currentUser) {
+    updateAuthDisplay();
+  } else if (event === "SIGNED_OUT") {
+    showAuthMessage("Kamu sudah keluar dari akun.");
+  }
+});
+
+// Periksa sesi login yang tersimpan
+supabaseClient.auth.getSession().then(({ data, error }) => {
+  if (error) {
+    console.error("Gagal memeriksa sesi:", error.message);
+    return;
+  }
+
+  currentUser = data.session?.user || null;
+  updateAuthDisplay();
+});
 </script>
 </body></html>
