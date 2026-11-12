@@ -288,29 +288,46 @@ const glossary=[
 ["1RM","One Rep Max","Beban maksimal yang dapat diangkat untuk satu repetisi dengan teknik yang benar."],["Rep","Repetition","Satu kali pengulangan gerakan latihan."],["Set","Set","Sekumpulan repetisi dalam satu rangkaian kerja."],["RIR","Reps In Reserve","Perkiraan repetisi yang masih tersisa sebelum failure."],["RPE","Rate of Perceived Exertion","Skala subjektif untuk mengukur tingkat kesulitan set."],["Failure","Muscular Failure","Kondisi ketika tidak mampu menyelesaikan repetisi berikutnya dengan teknik yang benar."],["PR","Personal Record","Pencapaian performa terbaik pribadi."],["ROM","Range of Motion","Rentang gerak sendi atau gerakan latihan."],["TUT","Time Under Tension","Durasi otot berada di bawah tegangan selama latihan."],["DOMS","Delayed Onset Muscle Soreness","Rasa nyeri otot yang muncul setelah latihan, biasanya tertunda."],["Compound","Compound Exercise","Latihan yang melibatkan beberapa sendi dan kelompok otot."],["Isolation","Isolation Exercise","Latihan yang lebih menargetkan satu otot atau kelompok otot tertentu."],["Superset","Superset","Dua latihan dilakukan berurutan dengan sedikit atau tanpa jeda."],["Drop Set","Drop Set","Melanjutkan latihan dengan mengurangi beban setelah mendekati atau mencapai failure."],["Deload","Deload Week","Periode pengurangan beban atau volume untuk membantu pemulihan."],["Hypertrophy","Muscle Hypertrophy","Pembesaran ukuran otot sebagai respons adaptasi latihan."],["TDEE","Total Daily Energy Expenditure","Estimasi total energi yang digunakan tubuh dalam satu hari."],["BMR","Basal Metabolic Rate","Estimasi energi yang dibutuhkan tubuh saat istirahat."],["Spotter","Spotter","Orang yang membantu mengawasi dan mengamankan latihan tertentu."],["Bulking","Bulking","Fase peningkatan asupan energi untuk mendukung pertumbuhan massa tubuh dan otot."],["Cutting","Cutting","Fase defisit energi untuk menurunkan berat badan, dengan upaya mempertahankan massa otot."],["Eccentric","Eccentric Phase","Fase ketika otot menghasilkan gaya sambil memanjang."],["Concentric","Concentric Phase","Fase ketika otot menghasilkan gaya sambil memendek."]];
 let selectedGroup="Semua",favorites=JSON.parse(localStorage.getItem("aaGymFavorites")||"[]");
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
-window.go = function(id){
+
+window.go = function(id) {
   const publicPages = ["home", "auth"];
 
   if (!publicPages.includes(id) && !currentUser) {
     id = "auth";
-    showAuthMessage("Silakan login terlebih dahulu untuk membuka materi AA NGEGYM.");
+    showAuthMessage(
+      "Silakan login terlebih dahulu untuk membuka materi AA NGEGYM."
+    );
   }
 
   document.querySelectorAll(".page").forEach(page => {
     page.classList.remove("active");
   });
 
-  document.getElementById("page-" + id)?.classList.add("active");
+  const target = document.getElementById(
+    "page-" + id
+  ) || document.getElementById(id);
+
+  if (target) {
+    target.classList.add("active");
+  }
+
+  document.querySelectorAll("#nav button").forEach(button => {
+    button.classList.toggle(
+      "active",
+      button.dataset.page === id
+    );
+  });
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
 };
-  document.querySelectorAll("section.page").forEach(x=>x.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
 
-  document.querySelectorAll("#nav button").forEach(x=>
-    x.classList.toggle("active",x.dataset.page===id)
-  );
-
-  window.scrollTo({top:0,behavior:"smooth"});
-}document.querySelectorAll("#nav button").forEach(b=>b.onclick=()=>go(b.dataset.page));
+document.querySelectorAll("#nav button").forEach(button => {
+  button.onclick = () => go(button.dataset.page);
+});
+document.querySelectorAll("#nav button").forEach(b=>b.onclick=()=>go(b.dataset.page));
 window.go=go;
 function renderExercises(){let q=document.getElementById("exSearch").value.toLowerCase();let list=exercises.map((e,i)=>({...e,i})).filter(e=>(selectedGroup==="Semua"||e.group===selectedGroup)&&(e.name+" "+e.target).toLowerCase().includes(q));document.getElementById("count").textContent=list.length+" gerakan";document.getElementById("exList").innerHTML=list.map(e=>`<button class="card exercise" onclick="showExercise(${e.i})"><span class="tag">${e.group} • ${e.type}</span><h3>${e.name}</h3><p>${e.target}</p><span class="gold" style="font-size:11px">Buka tutorial →</span></button>`).join("")||"<p class='muted'>Gerakan tidak ditemukan.</p>"}
 document.getElementById("exFilters").innerHTML=["Semua","Chest","Back","Shoulders","Arms","Legs","Core"].map(x=>`<button onclick="setGroup('${x}')" class="${x==="Semua"?"active":""}">${x}</button>`).join("");
