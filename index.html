@@ -1012,32 +1012,140 @@ function showAuthMessage(message, isError = false) {
 }
 
 // Memperbarui tampilan status akun
+
 function updateAuthDisplay() {
   const box = document.getElementById("authStatus");
   const accountButton = document.getElementById("accountButton");
 
   if (accountButton) {
-    accountButton.textContent = currentUser
-      ? "Akun Saya"
-      : "Akun / Login";
-
+    accountButton.textContent = currentUser ? "Akun Saya" : "Akun / Login";
     accountButton.title = currentUser
       ? currentUser.email
       : "Masuk ke AA NGEGYM";
   }
 
-  if (!box) return;
-
-  if (currentUser) {
-    box.style.display = "block";
-    box.style.background = "#203447";
-    box.innerHTML = `
-      <b>Login berhasil</b>
-      <p>${esc(currentUser.email || "Member AA NGEGYM")}</p>
-      <button onclick="logoutAccount()">Keluar dari akun</button>
-    `;
+  if (box) {
+    if (currentUser) {
+      box.style.display = "block";
+      box.style.background = "#203447";
+      box.innerHTML = `
+        <b>Login berhasil</b>
+        <p>${esc(currentUser.email || "Member AA NGEGYM")}</p>
+        <button onclick="logoutAccount()">Keluar dari akun</button>
+      `;
+    }
   }
 }
+
+// REGISTRASI EMAIL
+window.registerEmail = async function () {
+  const email = document.getElementById("authEmail").value.trim();
+  const password = document.getElementById("authPassword").value;
+
+  if (!email || password.length < 6) {
+    return showAuthMessage("Masukkan email dan password minimal 6 karakter.", true);
+  }
+
+  try {
+    const { data, error } = await supabaseClient.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: window.location.origin + window.location.pathname
+      }
+    });
+
+    if (error) throw error;
+
+    if (data.session) {
+      currentUser = data.user;
+      updateAuthDisplay();
+      showAuthMessage("Akun berhasil dibuat dan kamu sudah login.");
+      go("home");
+    } else {
+      showAuthMessage("Akun berhasil dibuat. Silakan cek email untuk konfirmasi.");
+    }
+  } catch (error) {
+    showAuthMessage(error.message, true);
+  }
+};
+
+// LOGIN EMAIL
+window.loginEmail = async function () {
+  const email = document.getElementById("authEmail").value.trim();
+  const password = document.getElementById("authPassword").value;
+
+  if (!email || !password) {
+    return showAuthMessage("Email dan password wajib diisi.", true);
+  }
+
+  try {
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) throw error;
+
+    currentUser = data.user;
+    updateAuthDisplay();
+    showAuthMessage("Login berhasil.");
+    go("home");
+  } catch (error) {
+    showAuthMessage(error.message, true);
+  }
+};
+
+// LOGIN GOOGLE
+window.loginGoogle = async function () {
+  try {
+    const { error } = await supabaseClient.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: window.location.origin + window.location.pathname
+      }
+    });
+
+    if (error) throw error;
+  } catch (error) {
+    showAuthMessage(error.message, true);
+  }
+};
+
+// LOGOUT
+window.logoutAccount = async function () {
+  try {
+    const { error } = await supabaseClient.auth.signOut();
+    if (error) throw error;
+
+    currentUser = null;
+    updateAuthDisplay();
+    showAuthMessage("Kamu berhasil keluar dari akun.");
+    go("home");
+  } catch (error) {
+    showAuthMessage(error.message, true);
+  }
+};
+
+// CEK SESSION LOGIN
+supabaseClient.auth.onAuthStateChange((event, session) => {
+  currentUser = session?.user || null;
+  updateAuthDisplay();
+});
+
+// INISIALISASI SESSION
+(async function initializeAuth() {
+  try {
+    const { data, error } = await supabaseClient.auth.getSession();
+
+    if (error) throw error;
+
+    currentUser = data.session?.user || null;
+    updateAuthDisplay();
+  } catch (error) {
+    showAuthMessage(error.message, true);
+  }
+})();
 
 // Registrasi akun baru
 window.registerEmail = async function() {
