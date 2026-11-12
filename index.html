@@ -22,7 +22,19 @@ label{font-size:12px;color:var(--muted)}.filters{display:flex;gap:7px;flex-wrap:
 table{border-collapse:collapse;width:100%;font-size:13px}td,th{text-align:left;padding:10px;border-bottom:1px solid var(--line)}th{color:var(--gold)}
 .result{background:#203447;padding:14px;border-radius:12px;margin-top:12px}.macro{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.macro div{background:#172331;border-radius:9px;padding:12px}
 footer{text-align:center;border-top:1px solid var(--line);padding:25px;color:var(--muted);font-size:11px;margin-top:40px}
-#muscleDetail:empty{display:none}#muscleDetail .detail{scroll-margin-top:125px;border-color:var(--gold)}#exDetail .detail{scroll-margin-top:125px}.video-wrap{margin:14px 0 18px;background:#080d14;border:1px solid var(--line);border-radius:12px;padding:10px}.video-wrap video{display:block;width:100%;max-height:420px;aspect-ratio:16/9;object-fit:contain;background:#000;border-radius:8px}.video-note{font-size:11px;color:var(--muted);margin:7px 2px 0}dialog{background:var(--panel);color:var(--txt);border:1px solid var(--line);border-radius:14px;max-width:560px;width:calc(100% - 24px);max-height:85vh;overflow:auto}dialog::backdrop{background:#000c}.close{float:right}
+#muscleDetail:empty{display:none}/* PROGRESS TRACKER */
+.progress-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.progress-form .field{min-width:0}
+.progress-form label{display:block}
+.progress-actions{display:flex;gap:8px;flex-wrap:wrap}
+.progress-chart{width:100%;overflow:hidden;background:#0d1520;border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:12px}
+.progress-chart svg{width:100%;height:auto;display:block}
+.progress-table-wrap{overflow-x:auto}
+.progress-table-wrap table{min-width:650px}
+.progress-empty{padding:20px;text-align:center;color:var(--muted)}
+.progress-stat{background:#172331;border:1px solid var(--line);border-radius:10px;padding:13px}
+.progress-stat b{font-size:21px;color:var(--gold)}
+.progress-stat small{display:block;color:var(--muted)}
 @media(max-width:600px){header{padding:13px 15px}.hero{padding:21px}.card{padding:13px}main{padding:16px 13px 40px}}
 </style>
 </head>
@@ -31,7 +43,7 @@ footer{text-align:center;border-top:1px solid var(--line);padding:25px;color:var
 <main>
 <div class="hero"><div class="eyebrow">YOUR FITNESS LEARNING HUB</div><h1>Train Smart.<br><span class="gold">Build Strong.</span></h1><p class="muted">Panduan belajar fitness dari pemula sampai mahir. Pahami gerakan, otot, program latihan, nutrisi, dan prinsip latihan.</p><button class="primary" onclick="go('exercise')">Mulai belajar →</button></div>
 <nav id="nav">
-<button class="active" data-page="home">Beranda</button><button data-page="exercise">Exercise Library</button><button data-page="anatomy">Anatomi Otot</button><button data-page="program">Program Gym</button><button data-page="nutrition">Nutrisi</button><button data-page="knowledge">Gym Knowledge</button><button data-page="glossary">Kamus Gym</button><button data-page="saved">Favorit</button>
+<button class="active" data-page="home">Beranda</button><button data-page="exercise">Exercise Library</button><button data-page="anatomy">Anatomi Otot</button><button data-page="program">Program Gym</button><button data-page="nutrition">Nutrisi</button><button data-page="knowledge">Gym Knowledge</button><button data-page="glossary">Kamus Gym</button><button data-page="saved">Favorit</button><button data-page="progress">Progress Tracker</button>
 </nav>
 <section id="home" class="page active">
 <h2>Jelajahi materi</h2><div class="grid">
@@ -52,7 +64,93 @@ footer{text-align:center;border-top:1px solid var(--line);padding:25px;color:var
 <div class="card" style="margin-top:12px"><h3>Prinsip nutrisi</h3><p class="muted">Protein sekitar 1,6–2,2 g/kg berat badan/hari dapat mendukung adaptasi latihan beban. Lemak umumnya 20–35% energi harian. Karbohidrat membantu memenuhi kebutuhan energi. Utamakan pola makan yang beragam dan konsisten.</p></div></section>
 <section id="knowledge" class="page"><h2>Gym Knowledge</h2><p class="muted">Prinsip dasar latihan beban dan pembentukan otot.</p><div id="knowledgeList"></div></section>
 <section id="glossary" class="page"><h2>Kamus Gym</h2><input id="glossSearch" placeholder="Cari istilah: reps, RIR, failure..."><div id="glossList"></div></section>
-<section id="saved" class="page"><h2>Gerakan Favorit</h2><p class="muted">Gerakan yang kamu simpan akan muncul di sini pada perangkat ini.</p><div id="savedList" class="grid"></div></section>
+<section id="progress" class="page">
+  <div class="row">
+    <div>
+      <h2>Progress Tracker</h2>
+      <p class="muted">Catat perkembangan tubuh dan pantau hasil latihanmu.</p>
+    </div>
+    <span class="tag">MY FITNESS JOURNEY</span>
+  </div>
+
+  <div class="grid" id="progressSummary">
+    <div class="progress-stat"><small>Total catatan</small><b>0</b></div>
+    <div class="progress-stat"><small>Berat terbaru</small><b>—</b></div>
+    <div class="progress-stat"><small>Perubahan berat</small><b>—</b></div>
+  </div>
+
+  <div class="card" style="margin-top:14px">
+    <h3 id="progressFormTitle">Tambah Catatan Progress</h3>
+    <p class="muted">Isi data tubuhmu. Kolom ukuran lingkar tubuh boleh dikosongkan jika belum diukur.</p>
+
+    <form id="progressForm">
+      <input type="hidden" id="progressEditId">
+
+      <div class="progress-form">
+        <div class="field">
+          <label>Tanggal</label>
+          <input type="date" id="progressDate" required>
+        </div>
+        <div class="field">
+          <label>Berat badan (kg) *</label>
+          <input type="number" id="progressWeight" min="1" max="500" step="0.1" placeholder="Contoh: 55.5" required>
+        </div>
+        <div class="field">
+          <label>Lingkar dada (cm)</label>
+          <input type="number" id="progressChest" min="1" max="300" step="0.1" placeholder="Contoh: 95">
+        </div>
+        <div class="field">
+          <label>Lingkar pinggang (cm)</label>
+          <input type="number" id="progressWaist" min="1" max="300" step="0.1" placeholder="Contoh: 75">
+        </div>
+        <div class="field">
+          <label>Lingkar lengan (cm)</label>
+          <input type="number" id="progressArm" min="1" max="150" step="0.1" placeholder="Contoh: 32">
+        </div>
+        <div class="field">
+          <label>Lingkar paha (cm)</label>
+          <input type="number" id="progressThigh" min="1" max="200" step="0.1" placeholder="Contoh: 52">
+        </div>
+        <div class="field">
+          <label>Lingkar betis (cm)</label>
+          <input type="number" id="progressCalf" min="1" max="150" step="0.1" placeholder="Contoh: 36">
+        </div>
+      </div>
+
+      <div>
+        <label>Catatan tambahan</label>
+        <input type="text" id="progressNotes" maxlength="250" placeholder="Contoh: Berat naik, latihan semakin kuat...">
+      </div>
+
+      <div class="progress-actions">
+        <button type="submit" class="primary" id="progressSaveButton">Simpan Progress</button>
+        <button type="button" id="progressCancelButton" onclick="resetProgressForm()" style="display:none">Batal Edit</button>
+      </div>
+    </form>
+    <p class="muted" style="font-size:11px;margin-top:10px">* Berat badan wajib diisi. Pengukuran sebaiknya dilakukan pada kondisi dan waktu yang konsisten.</p>
+  </div>
+
+  <div class="card" style="margin-top:14px">
+    <h3>Grafik Berat Badan</h3>
+    <p class="muted">Perkembangan berat badan dari catatan yang tersimpan.</p>
+    <div id="progressChart" class="progress-chart">
+      <div class="progress-empty">Belum ada data untuk ditampilkan.</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:14px">
+    <div class="row">
+      <div>
+        <h3>Riwayat Progress</h3>
+        <p class="muted">Semua catatan pengukuranmu.</p>
+      </div>
+      <span class="tag" id="progressCount">0 CATATAN</span>
+    </div>
+    <div id="progressHistory" class="progress-table-wrap">
+      <div class="progress-empty">Belum ada catatan progress.</div>
+    </div>
+  </div>
+</section><section id="saved" class="page"><h2>Gerakan Favorit</h2><p class="muted">Gerakan yang kamu simpan akan muncul di sini pada perangkat ini.</p><div id="savedList" class="grid"></div></section>
 <footer><b class="gold">AA NGEGYM — GYM ACADEMY</b><br>Belajar teknik. Pahami proses. Latihan dengan cerdas.</footer>
 </main>
 <dialog id="modal"><button class="close" onclick="modal.close()">Tutup ✕</button><div id="modalContent"></div></dialog>
@@ -278,6 +376,309 @@ document.getElementById("knowledgeList").innerHTML=topics.map(t=>`<details class
 function renderGloss(){let q=document.getElementById("glossSearch").value.toLowerCase();document.getElementById("glossList").innerHTML=glossary.filter(g=>g.join(" ").toLowerCase().includes(q)).map(g=>`<div class="card" style="margin:8px 0"><b class="gold">${g[0]}</b> — <b>${g[1]}</b><p class="muted">${g[2]}</p></div>`).join("")||"<p class='muted'>Istilah tidak ditemukan.</p>"}
 document.getElementById("glossSearch").addEventListener("input",renderGloss);
 window.calcNutrition=()=>{let w=+weight.value,h=+height.value,a=+age.value;if(w<=0||h<=0||a<=0){nutritionResult.innerHTML="<p class='gold'>Isi berat, tinggi dan usia dengan benar.</p>";return}let bmr=10*w+6.25*h-5*a+(sex.value==="m"?5:-161),tdee=bmr*+activity.value,g=goal.value,k=Math.round(tdee*(g==="bulk"?1.1:g==="cut"?.85:1)),p=Math.round(w*1.8),f=Math.round(k*.27/9),c=Math.round((k-p*4-f*9)/4);nutritionResult.innerHTML=`<div class="result"><span class="eyebrow">ESTIMASI KEBUTUHAN HARIAN</span><h2>${k.toLocaleString("id-ID")} kcal</h2><p class="muted">BMR ${Math.round(bmr)} kcal • TDEE ${Math.round(tdee)} kcal</p><div class="macro"><div><b>${p}g</b><br><small>Protein</small></div><div><b>${c}g</b><br><small>Karbohidrat</small></div><div><b>${f}g</b><br><small>Lemak</small></div></div><p class="muted">Estimasi awal, bukan resep medis. Pantau perubahan berat dan performa selama 2–3 minggu, lalu sesuaikan bertahap.</p></div>`};
+
+// ================================
+// AA NGEGYM - PROGRESS TRACKER
+// ================================
+
+const PROGRESS_KEY = "aaGymProgress";
+
+let progressData = [];
+
+try {
+  progressData = JSON.parse(localStorage.getItem(PROGRESS_KEY) || "[]");
+  if (!Array.isArray(progressData)) progressData = [];
+} catch (error) {
+  progressData = [];
+}
+
+const progressFields = [
+  "Weight", "Chest", "Waist", "Arm", "Thigh", "Calf", "Notes"
+];
+
+function saveProgressStorage() {
+  localStorage.setItem(PROGRESS_KEY, JSON.stringify(progressData));
+}
+
+function getProgressValue(id) {
+  const value = document.getElementById("progress" + id).value.trim();
+  return value === "" ? "" : value;
+}
+
+function resetProgressForm() {
+  document.getElementById("progressForm").reset();
+  document.getElementById("progressEditId").value = "";
+  document.getElementById("progressDate").value =
+    new Date().getFullYear() + "-" +
+    String(new Date().getMonth() + 1).padStart(2, "0") + "-" +
+    String(new Date().getDate()).padStart(2, "0");
+
+  document.getElementById("progressFormTitle").textContent =
+    "Tambah Catatan Progress";
+
+  document.getElementById("progressSaveButton").textContent =
+    "Simpan Progress";
+
+  document.getElementById("progressCancelButton").style.display = "none";
+}
+
+document.getElementById("progressForm").addEventListener("submit", function(event) {
+  event.preventDefault();
+
+  const date = document.getElementById("progressDate").value;
+  const weight = Number(getProgressValue("Weight"));
+
+  if (!date || !Number.isFinite(weight) || weight <= 0) {
+    alert("Isi tanggal dan berat badan dengan benar.");
+    return;
+  }
+
+  const editId = document.getElementById("progressEditId").value;
+
+  const record = {
+    id: editId || String(Date.now()),
+    date,
+    weight,
+    chest: getProgressValue("Chest"),
+    waist: getProgressValue("Waist"),
+    arm: getProgressValue("Arm"),
+    thigh: getProgressValue("Thigh"),
+    calf: getProgressValue("Calf"),
+    notes: getProgressValue("Notes")
+  };
+
+  if (editId) {
+    const index = progressData.findIndex(item => item.id === editId);
+
+    if (index !== -1) {
+      progressData[index] = record;
+    }
+  } else {
+    progressData.push(record);
+  }
+
+  saveProgressStorage();
+  resetProgressForm();
+  renderProgress();
+
+  alert(editId ? "Catatan berhasil diperbarui!" : "Progress berhasil disimpan!");
+});
+
+function editProgress(id) {
+  const item = progressData.find(x => x.id === id);
+  if (!item) return;
+
+  document.getElementById("progressEditId").value = item.id;
+  document.getElementById("progressDate").value = item.date;
+  document.getElementById("progressWeight").value = item.weight;
+  document.getElementById("progressChest").value = item.chest || "";
+  document.getElementById("progressWaist").value = item.waist || "";
+  document.getElementById("progressArm").value = item.arm || "";
+  document.getElementById("progressThigh").value = item.thigh || "";
+  document.getElementById("progressCalf").value = item.calf || "";
+  document.getElementById("progressNotes").value = item.notes || "";
+
+  document.getElementById("progressFormTitle").textContent =
+    "Edit Catatan Progress";
+
+  document.getElementById("progressSaveButton").textContent =
+    "Perbarui Progress";
+
+  document.getElementById("progressCancelButton").style.display =
+    "inline-block";
+
+  document.getElementById("progressForm").scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+}
+
+function deleteProgress(id) {
+  if (!confirm("Yakin ingin menghapus catatan progress ini?")) return;
+
+  progressData = progressData.filter(item => item.id !== id);
+
+  saveProgressStorage();
+  renderProgress();
+}
+
+function formatProgressDate(date) {
+  if (!date) return "—";
+
+  const parts = date.split("-");
+  return parts[2] + "/" + parts[1] + "/" + parts[0];
+}
+
+function progressMeasurement(value) {
+  return value !== "" && value !== null && value !== undefined
+    ? esc(value) + " cm"
+    : "—";
+}
+
+function renderProgress() {
+  const sorted = [...progressData].sort((a, b) =>
+    a.date.localeCompare(b.date)
+  );
+
+  const latest = sorted[sorted.length - 1];
+  const first = sorted[0];
+
+  const change = latest && first
+    ? Number(latest.weight) - Number(first.weight)
+    : 0;
+
+  const changeText = !latest || sorted.length < 2
+    ? "—"
+    : (change > 0 ? "+" : "") + change.toFixed(1) + " kg";
+
+  document.getElementById("progressSummary").innerHTML = `
+    <div class="progress-stat">
+      <small>Total catatan</small>
+      <b>${progressData.length}</b>
+    </div>
+    <div class="progress-stat">
+      <small>Berat terbaru</small>
+      <b>${latest ? Number(latest.weight).toFixed(1) + " kg" : "—"}</b>
+    </div>
+    <div class="progress-stat">
+      <small>Perubahan berat</small>
+      <b>${changeText}</b>
+    </div>
+  `;
+
+  document.getElementById("progressCount").textContent =
+    progressData.length + " CATATAN";
+
+  renderProgressChart(sorted);
+  renderProgressHistory(sorted);
+}
+
+function renderProgressChart(data) {
+  const box = document.getElementById("progressChart");
+
+  if (data.length < 2) {
+    box.innerHTML = `
+      <div class="progress-empty">
+        Tambahkan minimal dua catatan berat badan untuk melihat grafik.
+      </div>
+    `;
+    return;
+  }
+
+  const values = data.map(x => Number(x.weight));
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const range = Math.max(max - min, 1);
+
+  const width = 700;
+  const height = 230;
+  const padding = 35;
+
+  const points = values.map((value, index) => {
+    const x = padding + index * (width - padding * 2) /
+      (values.length - 1);
+
+    const y = height - padding -
+      ((value - min) / range) * (height - padding * 2);
+
+    return { x, y, value };
+  });
+
+  const line = points.map(p => `${p.x},${p.y}`).join(" ");
+
+  const circles = points.map(p => `
+    <circle cx="${p.x}" cy="${p.y}" r="5"
+      fill="#e5b967" stroke="#0d1520" stroke-width="2"/>
+    <text x="${p.x}" y="${p.y - 12}"
+      fill="#edf3fa" font-size="12" text-anchor="middle">
+      ${p.value.toFixed(1)}
+    </text>
+  `).join("");
+
+  box.innerHTML = `
+    <svg viewBox="0 0 ${width} ${height}"
+      role="img" aria-label="Grafik perkembangan berat badan">
+
+      <line x1="${padding}" y1="${height-padding}"
+        x2="${width-padding}" y2="${height-padding}"
+        stroke="#2c3c50"/>
+
+      <polyline points="${line}" fill="none"
+        stroke="#83c8e9" stroke-width="3"
+        stroke-linecap="round" stroke-linejoin="round"/>
+
+      ${circles}
+
+      <text x="${padding}" y="${height-8}"
+        fill="#9baabd" font-size="11">
+        ${formatProgressDate(data[0].date)}
+      </text>
+
+      <text x="${width-padding}" y="${height-8}"
+        fill="#9baabd" font-size="11" text-anchor="end">
+        ${formatProgressDate(data[data.length-1].date)}
+      </text>
+    </svg>
+    <p class="muted" style="font-size:11px">
+      Grafik berdasarkan ${data.length} catatan pengukuran.
+    </p>
+  `;
+}
+
+function renderProgressHistory(data) {
+  const box = document.getElementById("progressHistory");
+
+  if (!data.length) {
+    box.innerHTML = `
+      <div class="progress-empty">
+        Belum ada catatan. Yuk, mulai catat progress pertamamu!
+      </div>
+    `;
+    return;
+  }
+
+  const rows = [...data].reverse().map(item => `
+    <tr>
+      <td>${formatProgressDate(item.date)}</td>
+      <td><b class="gold">${Number(item.weight).toFixed(1)} kg</b></td>
+      <td>${progressMeasurement(item.chest)}</td>
+      <td>${progressMeasurement(item.waist)}</td>
+      <td>${progressMeasurement(item.arm)}</td>
+      <td>${progressMeasurement(item.thigh)}</td>
+      <td>${progressMeasurement(item.calf)}</td>
+      <td>${esc(item.notes || "—")}</td>
+      <td>
+        <div class="progress-actions">
+          <button onclick="editProgress('${esc(item.id)}')">Edit</button>
+          <button onclick="deleteProgress('${esc(item.id)}')">Hapus</button>
+        </div>
+      </td>
+    </tr>
+  `).join("");
+
+  box.innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>Tanggal</th>
+          <th>Berat</th>
+          <th>Dada</th>
+          <th>Pinggang</th>
+          <th>Lengan</th>
+          <th>Paha</th>
+          <th>Betis</th>
+          <th>Catatan</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
+}
+
+// Siapkan tanggal dan tampilkan data tersimpan
+resetProgressForm();
+renderProgress();
 renderExercises();renderSaved();renderGloss();
 </script>
 </body></html>
