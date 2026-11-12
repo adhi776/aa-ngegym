@@ -999,8 +999,10 @@ const supabaseClient = window.supabase.createClient(
   SUPABASE_PUBLISHABLE_KEY
 );
 
+
 let currentUser = null;
 
+// Menampilkan pesan login atau error
 function showAuthMessage(message, isError = false) {
   const box = document.getElementById("authStatus");
   if (!box) return;
@@ -1010,6 +1012,7 @@ function showAuthMessage(message, isError = false) {
   box.textContent = message;
 }
 
+// Memperbarui tampilan status akun
 function updateAuthDisplay() {
   const box = document.getElementById("authStatus");
   const accountButton = document.getElementById("accountButton");
@@ -1036,3 +1039,141 @@ function updateAuthDisplay() {
     `;
   }
 }
+
+// Registrasi akun baru
+window.registerEmail = async function() {
+  const email = document.getElementById("authEmail").value.trim();
+  const password = document.getElementById("authPassword").value;
+
+  if (!email || !password) {
+    showAuthMessage("Masukkan email dan password terlebih dahulu.", true);
+    return;
+  }
+
+  if (password.length < 6) {
+    showAuthMessage("Password minimal 6 karakter.", true);
+    return;
+  }
+
+  try {
+    showAuthMessage("Sedang membuat akun...");
+
+    const { data, error } = await supabaseClient.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: window.location.origin +
+          window.location.pathname
+      }
+    });
+
+    if (error) throw error;
+
+    if (data.session) {
+      currentUser = data.user;
+      updateAuthDisplay();
+      showAuthMessage("Akun berhasil dibuat dan kamu sudah login.");
+    } else {
+      showAuthMessage(
+        "Akun berhasil dibuat. Silakan periksa email untuk konfirmasi pendaftaran."
+      );
+    }
+
+  } catch (error) {
+    showAuthMessage(error.message || "Registrasi gagal.", true);
+  }
+};
+
+// Login menggunakan email
+window.loginEmail = async function() {
+  const email = document.getElementById("authEmail").value.trim();
+  const password = document.getElementById("authPassword").value;
+
+  if (!email || !password) {
+    showAuthMessage("Masukkan email dan password terlebih dahulu.", true);
+    return;
+  }
+
+  try {
+    showAuthMessage("Sedang masuk...");
+
+    const { data, error } =
+      await supabaseClient.auth.signInWithPassword({
+        email,
+        password
+      });
+
+    if (error) throw error;
+
+    currentUser = data.user;
+    updateAuthDisplay();
+
+    showAuthMessage("Login berhasil. Selamat datang di AA NGEGYM!");
+
+    go("home");
+
+  } catch (error) {
+    showAuthMessage(error.message || "Login gagal.", true);
+  }
+};
+
+// Login menggunakan Google
+window.loginGoogle = async function() {
+  try {
+    showAuthMessage("Menghubungkan ke Google...");
+
+    const { error } = await supabaseClient.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: window.location.origin +
+          window.location.pathname
+      }
+    });
+
+    if (error) throw error;
+
+  } catch (error) {
+    showAuthMessage(error.message || "Google Login gagal.", true);
+  }
+};
+
+// Logout akun
+window.logoutAccount = async function() {
+  try {
+    const { error } = await supabaseClient.auth.signOut();
+
+    if (error) throw error;
+
+    currentUser = null;
+    updateAuthDisplay();
+
+    showAuthMessage("Kamu berhasil keluar dari akun.");
+
+    go("home");
+
+  } catch (error) {
+    showAuthMessage(error.message || "Gagal keluar dari akun.", true);
+  }
+};
+
+// Memeriksa sesi login saat website dibuka
+supabaseClient.auth.onAuthStateChange((event, session) => {
+  currentUser = session?.user || null;
+  updateAuthDisplay();
+});
+
+// Mengambil sesi login yang tersimpan
+(async function initializeAuth() {
+  try {
+    const { data, error } = await supabaseClient.auth.getSession();
+
+    if (error) throw error;
+
+    currentUser = data.session?.user || null;
+    updateAuthDisplay();
+
+  } catch (error) {
+    console.error("Auth initialization error:", error);
+    showAuthMessage("Gagal memeriksa sesi akun. Silakan muat ulang halaman.", true);
+  }
+})();
